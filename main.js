@@ -1,6 +1,7 @@
 console.log('Hello, world') // Imprime un saludo en la consola para verificar que el script se ejecuta
 
-const API_URL = 'https://api.thecatapi.com/v1/images/search?limit=3'; // URL de la API que retorna 3 imágenes aleatorias de gatos
+const API_URL = 'https://api.thecatapi.com/v1/images/search?limit=3&api_key=live_XZHWFi7Iw6Zgo0nBBGrRZajWP6F12AlPaAQe5vJ0Qq6oo9E5vj60UWPIDXabvTHC'; 
+// URL de la API que retorna 3 imágenes aleatorias de gatos, con límite y clave API incluidos correctamente
 
 async function reload() {
   // Función asíncrona que obtiene imágenes desde la API y las muestra en la página
