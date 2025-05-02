@@ -1,23 +1,51 @@
-console.log('Hello, world') // Imprime un saludo en la consola para verificar que el script está corriendo correctamente
+const API_URL_RANDOM = 'https://api.thecatapi.com/v1/images/search?limit=2&api_key=live_XZHWFi7Iw6Zgo0nBBGrRZajWP6F12AlPaAQe5vJ0Qq6oo9E5vj60UWPIDXabvTHC';
+// URL para obtener 2 imágenes aleatorias de gatos
 
-const API_URL = 'https://api.thecatapi.com/v1/images/search?limit=3&api_key=live_XZHWFi7Iw6Zgo0nBBGrRZajWP6F12AlPaAQe5vJ0Qq6oo9E5vj60UWPIDXabvTHC';
-// URL de la API que retorna 3 imágenes aleatorias de gatos. Incluye el parámetro 'limit=3' y la API key para autenticación
+const API_URL_FAVOTITES = 'https://api.thecatapi.com/v1/favourites?limit=2&api_key=live_XZHWFi7Iw6Zgo0nBBGrRZajWP6F12AlPaAQe5vJ0Qq6oo9E5vj60UWPIDXabvTHC';
+// URL para obtener 2 gatos marcados como favoritos
 
-async function reload() {
-  // Función asíncrona que obtiene imágenes de gatos desde la API
+const spanError = document.getElementById('error'); // Elemento donde se mostrará un mensaje de error
 
-  const res = await fetch(API_URL); // Hace la solicitud GET a la URL de la API
-  const data = await res.json();    // Convierte la respuesta en formato JSON
+async function loadRandomMichis() {
+  // Función asíncrona para cargar imágenes aleatorias de gatos
 
-  console.log(data) // Muestra los datos obtenidos en consola (arreglo con objetos que contienen URLs de imágenes)
+  const res = await fetch(API_URL_RANDOM); // Solicitud GET a la API de imágenes aleatorias
+  const data = await res.json();           // Convierte la respuesta en JSON
+  console.log('Random');
+  console.log(data);
 
-  const img1 = document.getElementById('img1'); // Obtiene el elemento de imagen con ID 'img1'
-  const img2 = document.getElementById('img2'); // Obtiene el elemento de imagen con ID 'img2'
-  const img3 = document.getElementById('img3'); // Obtiene el elemento de imagen con ID 'img3'
-  
-  img1.src = data[0].url; // Asigna la primera URL de imagen al elemento img1
-  img2.src = data[1].url; // Asigna la segunda URL de imagen al elemento img2
-  img3.src = data[2].url; // Asigna la tercera URL de imagen al elemento img3
+  if (res.status !== 200) {
+    // Si la respuesta no fue exitosa, muestra el código de error
+    spanError.innerHTML = "Hubo un error: " + res.status;
+  } else {
+    // Si todo va bien, asigna las imágenes a los elementos correspondientes
+    const img1 = document.getElementById('img1');
+    const img2 = document.getElementById('img2');
+
+    img1.src = data[0].url;
+    img2.src = data[1].url;
+  }
 }
 
-reload(); // Llama la función para ejecutar todo al cargar el script
+async function loadFavoritesMichis() {
+  // Función asíncrona para cargar gatos favoritos
+
+  const res = await fetch(API_URL_FAVOTITES); // Solicitud GET a la API de favoritos
+  const data = await res.json();              // Convierte la respuesta en JSON
+  console.log('Favoritos');
+  console.log(data);
+
+  if (res.status !== 200) {
+    // Si la respuesta no fue exitosa, muestra el código y mensaje de error
+    spanError.innerHTML = "Hubo un error: " + res.status + " " + data.message;
+  }
+
+  // Si quieres mostrar algún favorito, puedes usar el img3:
+  const img3 = document.getElementById('img3');
+  if (data.length > 0) {
+    img3.src = data[0].image.url;
+  }
+}
+
+loadRandomMichis();      // Carga imágenes aleatorias al iniciar
+loadFavoritesMichis();   // Carga imágenes favoritas al iniciar
