@@ -1,81 +1,118 @@
 const API_URL_RANDOM = 'https://api.thecatapi.com/v1/images/search?limit=2&api_key=live_XZHWFi7Iw6Zgo0nBBGrRZajWP6F12AlPaAQe5vJ0Qq6oo9E5vj60UWPIDXabvTHC';
 // URL para obtener 2 imágenes aleatorias de gatos
 
-const API_URL_FAVOTITES = 'https://api.thecatapi.com/v1/favourites?limit=2&api_key=live_XZHWFi7Iw6Zgo0nBBGrRZajWP6F12AlPaAQe5vJ0Qq6oo9E5vj60UWPIDXabvTHC';
-// URL para obtener 2 gatos marcados como favoritos
+const API_URL_FAVOTITES = 'https://api.thecatapi.com/v1/favourites?api_key=live_XZHWFi7Iw6Zgo0nBBGrRZajWP6F12AlPaAQe5vJ0Qq6oo9E5vj60UWPIDXabvTHC';
+// URL para consultar o guardar gatos favoritos
 
-const spanError = document.getElementById('error'); // Elemento para mostrar errores
+const API_URL_FAVOTITES_DELETE = (id) => `https://api.thecatapi.com/v1/favourites/${id}?api_key=live_XZHWFi7Iw6Zgo0nBBGrRZajWP6F12AlPaAQe5vJ0Qq6oo9E5vj60UWPIDXabvTHC`;
+// Función que retorna la URL para eliminar un gato favorito por su ID
+
+const spanError = document.getElementById('error'); // Elemento HTML para mostrar errores
 
 async function loadRandomMichis() {
-  // Carga 2 gatos aleatorios y asigna las imágenes y botones
-  const res = await fetch(API_URL_RANDOM);        // Solicita gatos aleatorios
-  const data = await res.json();                  // Convierte la respuesta a JSON
+  // Carga dos gatos aleatorios desde la API
+  const res = await fetch(API_URL_RANDOM);
+  const data = await res.json();
   console.log('Random');
-  console.log(data);                              // Muestra los datos en consola
+  console.log(data);
 
   if (res.status !== 200) {
-    spanError.innerHTML = "Hubo un error: " + res.status; // Muestra error si falla
+    // Si falla la solicitud, muestra el error
+    spanError.innerHTML = "Hubo un error: " + res.status;
   } else {
-    const img1 = document.getElementById('img1'); // Imagen del primer gato
-    const img2 = document.getElementById('img2'); // Imagen del segundo gato
-    const btn1 = document.getElementById('btn1'); // Botón para guardar el primer gato
-    const btn2 = document.getElementById('btn2'); // Botón para guardar el segundo gato
+    // Si todo va bien, actualiza imágenes y botones
+    const img1 = document.getElementById('img1');
+    const img2 = document.getElementById('img2');
+    const btn1 = document.getElementById('btn1');
+    const btn2 = document.getElementById('btn2');
+    
+    img1.src = data[0].url;
+    img2.src = data[1].url;
 
-    img1.src = data[0].url;                       // Asigna la imagen 1
-    img2.src = data[1].url;                       // Asigna la imagen 2
-
-    btn1.onclick = () => saveFavouriteMichi(data[0].id); // Guarda el gato 1
-    btn2.onclick = () => saveFavouriteMichi(data[1].id); // Guarda el gato 2
+    btn1.onclick = () => saveFavouriteMichi(data[0].id);
+    btn2.onclick = () => saveFavouriteMichi(data[1].id);
   }
 }
 
 async function loadFavouriteMichis() {
-  // Carga los gatos favoritos y los muestra en pantalla
-  const res = await fetch(API_URL_FAVOTITES);     // Solicita los favoritos
-  const data = await res.json();                  // Convierte la respuesta a JSON
+  // Carga y muestra los gatos marcados como favoritos
+  const res = await fetch(API_URL_FAVOTITES);
+  const data = await res.json();
   console.log('Favoritos');
-  console.log(data);                              // Muestra en consola
+  console.log(data);
 
   if (res.status !== 200) {
-    spanError.innerHTML = "Hubo un error: " + res.status + data.message; // Muestra error
+    // Si falla, muestra el error
+    spanError.innerHTML = "Hubo un error: " + res.status + data.message;
   } else {
+    // Limpia y reconstruye la sección de favoritos
+    const section = document.getElementById('favoriteMichis');
+    section.innerHTML = "";
+
+    const h2 = document.createElement('h2');
+    const h2Text = document.createTextNode('Michis favoritos');
+    h2.appendChild(h2Text);
+    section.appendChild(h2);
+
     data.forEach(michi => {
-      const section = document.getElementById('favoriteMichis'); // Sección de favoritos
-      const article = document.createElement('article');         // Contenedor individual
-      const img = document.createElement('img');                 // Imagen del favorito
-      const btn = document.createElement('button');              // Botón para quitar
+      const article = document.createElement('article');
+      const img = document.createElement('img');
+      const btn = document.createElement('button');
       const btnText = document.createTextNode('Sacar al michi de favoritos');
 
-      img.src = michi.image.url;      // Asigna la URL de la imagen favorita
-      img.width = 150;                // Ancho fijo
-      btn.appendChild(btnText);       // Texto del botón
-      article.appendChild(img);       // Añade imagen al contenedor
-      article.appendChild(btn);       // Añade botón al contenedor
-      section.appendChild(article);   // Añade el contenedor al DOM
+      img.src = michi.image.url;
+      img.width = 150;
+      btn.appendChild(btnText);
+      btn.onclick = () => deleteFavouriteMichi(michi.id);
+      article.appendChild(img);
+      article.appendChild(btn);
+      section.appendChild(article);
     });
   }
 }
 
 async function saveFavouriteMichi(id) {
-  // Guarda un gato como favorito enviando su image_id
+  // Guarda un gato como favorito con su image_id
   const res = await fetch(API_URL_FAVOTITES, {
-    method: 'POST',                              // Método POST
+    method: 'POST',
     headers: {
-      'Content-Type': 'application/json',        // Tipo de contenido
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      image_id: id                               // ID de la imagen a guardar
+      image_id: id
     }),
   });
-  const data = await res.json();                // Convierte respuesta a JSON
+  const data = await res.json();
 
   console.log('Save');
-  console.log(res);                             // Muestra en consola
+  console.log(res);
 
   if (res.status !== 200) {
-    spanError.innerHTML = "Hubo un error: " + res.status + data.message; // Muestra error si falla
+    // Si falla la solicitud, muestra el error
+    spanError.innerHTML = "Hubo un error: " + res.status + data.message;
+  } else {
+    // Si se guarda correctamente, recarga la lista de favoritos
+    console.log('Michi guardado en favoritos');
+    loadFavouriteMichis();
   }
 }
 
-loadRandomMichis();     // Ejecuta la carga de gatos aleatorios al iniciar
-loadFavouriteMichis();  // Ejecuta la carga de favoritos al iniciar
+async function deleteFavouriteMichi(id) {
+  // Elimina un gato favorito por su ID
+  const res = await fetch(API_URL_FAVOTITES_DELETE(id), {
+    method: 'DELETE',
+  });
+  const data = await res.json();
+
+  if (res.status !== 200) {
+    // Muestra error si falla
+    spanError.innerHTML = "Hubo un error: " + res.status + data.message;
+  } else {
+    // Si se elimina correctamente, recarga favoritos
+    console.log('Michi eliminado de favoritos');
+    loadFavouriteMichis();
+  }
+}
+
+loadRandomMichis();      // Carga gatos aleatorios al iniciar
+loadFavouriteMichis();   // Carga favoritos al iniciar
