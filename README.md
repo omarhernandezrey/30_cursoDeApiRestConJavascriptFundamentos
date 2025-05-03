@@ -51,4 +51,6 @@ cd 30_cursoDeApiRestConJavascriptFundamentos
 Omar Hernández Rey – Software Development Student
 GitHub @omarhernandezrey • omarhernandezrey@gmail.com
 
-🖼️ Captura de pantalla
+🖼️ Captura de pantalla![localhost_5500_](https://github.com/user-attachments/assets/982a20c7-c006-4a8e-abbe-839d1b5e936d)
+
+
